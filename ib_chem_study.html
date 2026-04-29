@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChemQuest — IB Chemistry HL</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--green:#58cc02;--gd:#46a502;--gl:#d7ffb8;--blue:#1cb0f6;--bd:#0a8fbf;--red:#ff4b4b;--rl:#ffd7d7;--orange:#ff9600;--yellow:#ffc800;--navy:#1a1f3c;--bg:#f0f4f8;--white:#fff;--muted:#6b7280;--border:#e2e8f0;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;display:flex;flex-direction:column;}
+/* TOPBAR */
+.topbar{background:var(--navy);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:99;box-shadow:0 2px 10px rgba(0,0,0,.3);}
+.logo{font-size:1.3rem;font-weight:900;color:#fff;}.logo span{color:var(--green);}
+.badges{display:flex;gap:8px;}
+.badge{padding:5px 12px;border-radius:999px;font-weight:800;font-size:.85rem;}
+.bxp{background:rgba(255,200,0,.15);color:var(--yellow);}
+.bst{background:rgba(255,150,0,.15);color:var(--orange);}
+/* CONTAINER */
+.wrap{max-width:680px;margin:0 auto;padding:20px 14px 80px;width:100%;}
+.screen{display:none;}.screen.active{display:block;}
+/* HOME */
+.hero{background:linear-gradient(135deg,#1a1f3c,#2d3a7c);border-radius:20px;padding:32px 24px;margin-bottom:20px;color:#fff;text-align:center;position:relative;overflow:hidden;}
+.hero::after{content:'⚗️';position:absolute;font-size:110px;opacity:.07;bottom:-20px;right:-10px;}
+.hero h1{font-size:1.75rem;font-weight:900;margin-bottom:6px;}.hero h1 span{color:var(--green);}
+.hero p{font-size:.9rem;opacity:.75;margin-bottom:20px;}
+.sec{font-size:.72rem;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+.topic-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+.tc{background:var(--white);border:2px solid var(--border);border-radius:14px;padding:16px 12px;cursor:pointer;text-align:center;transition:.15s;box-shadow:0 3px 0 rgba(0,0,0,.08);}
+.tc:hover{transform:translateY(-2px);border-color:var(--blue);}
+.tc.sel{border-color:var(--green);background:var(--gl);}
+.tc-icon{font-size:1.8rem;margin-bottom:5px;}
+.tc-name{font-weight:800;font-size:.88rem;color:var(--navy);line-height:1.3;}
+.tc-sub{font-size:.72rem;color:var(--muted);margin-top:2px;}
+.diff-row{display:flex;gap:8px;margin-bottom:18px;}
+.db{flex:1;padding:10px;border:2px solid var(--border);border-radius:10px;background:var(--white);cursor:pointer;font-family:inherit;font-weight:700;font-size:.85rem;transition:.15s;box-shadow:0 2px 0 rgba(0,0,0,.07);}
+.db:hover{transform:translateY(-2px);}
+.db.on{border-color:var(--blue);background:#dff3ff;color:var(--bd);}
+.db[data-d=Easy].on{border-color:var(--green);background:var(--gl);color:var(--gd);}
+.db[data-d=Hard].on{border-color:var(--red);background:var(--rl);color:var(--red);}
+/* BUTTONS */
+.btn{display:inline-block;padding:13px 26px;border-radius:12px;font-family:inherit;font-weight:800;font-size:.95rem;border:none;cursor:pointer;transition:.15s;letter-spacing:.3px;}
+.btn-g{background:var(--green);color:#fff;box-shadow:0 4px 0 var(--gd);}
+.btn-g:hover{transform:translateY(-2px);box-shadow:0 6px 0 var(--gd);}
+.btn-g:active{transform:translateY(2px);box-shadow:0 2px 0 var(--gd);}
+.btn-g:disabled{background:#ccc;box-shadow:0 4px 0 #aaa;cursor:not-allowed;transform:none;}
+.btn-o{background:var(--white);color:var(--navy);border:2px solid var(--border);box-shadow:0 3px 0 var(--border);}
+.btn-o:hover{transform:translateY(-2px);border-color:#aaa;}
+/* PROGRESS */
+.prog{background:var(--navy);padding:12px 16px;border-radius:14px;margin-bottom:16px;display:flex;align-items:center;gap:12px;}
+.prog-bar{flex:1;height:12px;background:rgba(255,255,255,.15);border-radius:999px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--green);border-radius:999px;transition:width .5s ease;box-shadow:0 0 8px var(--green);}
+.prog-txt{color:rgba(255,255,255,.65);font-size:.8rem;font-weight:700;white-space:nowrap;}
+.hearts{display:flex;gap:3px;}
+.heart{font-size:1rem;transition:.3s;}.heart.lost{filter:grayscale(1);opacity:.3;}
+/* QUESTION CARD */
+.qcard{background:var(--white);border-radius:18px;padding:24px 20px;margin-bottom:14px;box-shadow:0 3px 0 rgba(0,0,0,.09);border:2px solid var(--border);animation:up .28s ease;}
+@keyframes up{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.qtag{display:inline-block;background:var(--navy);color:var(--green);padding:3px 10px;border-radius:999px;font-size:.68rem;font-weight:900;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;}
+.qkind{font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
+.qtext{font-size:1.05rem;font-weight:700;color:var(--navy);line-height:1.55;margin-bottom:18px;}
+/* MCQ */
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.opt{padding:13px 11px;border:2px solid var(--border);border-radius:11px;background:var(--white);cursor:pointer;font-family:inherit;font-weight:700;font-size:.88rem;color:var(--navy);text-align:left;transition:.13s;display:flex;align-items:flex-start;gap:8px;line-height:1.35;box-shadow:0 2px 0 var(--border);}
+.opt:hover:not(:disabled){border-color:var(--blue);background:#e8f7ff;transform:translateY(-2px);}
+.opt:disabled{cursor:default;}
+.opt.ok{border-color:var(--green)!important;background:var(--gl)!important;}
+.opt.bad{border-color:var(--red)!important;background:var(--rl)!important;animation:shake .35s ease;}
+@keyframes shake{0%,100%{transform:translateX(0);}30%{transform:translateX(-5px);}70%{transform:translateX(5px);}}
+.oletter{background:var(--border);border-radius:5px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:900;flex-shrink:0;margin-top:1px;}
+.opt.ok .oletter{background:var(--green);color:#fff;}
+.opt.bad .oletter{background:var(--red);color:#fff;}
+/* TF */
+.tf{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.tfb{padding:20px 10px;border:2px solid var(--border);border-radius:13px;background:var(--white);cursor:pointer;font-family:inherit;font-weight:800;font-size:1rem;text-align:center;transition:.15s;box-shadow:0 3px 0 var(--border);}
+.tfb:hover:not(:disabled){transform:translateY(-3px);}
+.tfb:disabled{cursor:default;}
+.tfb.ok{background:var(--gl)!important;border-color:var(--green)!important;}
+.tfb.bad{background:var(--rl)!important;border-color:var(--red)!important;animation:shake .35s ease;}
+/* SHORT */
+.sinp{width:100%;padding:13px 15px;border:2px solid var(--border);border-radius:11px;font-family:inherit;font-weight:600;font-size:.95rem;color:var(--navy);outline:none;transition:border .2s;margin-bottom:10px;}
+.sinp:focus{border-color:var(--blue);}
+/* FEEDBACK */
+.fb{padding:14px 18px;border-radius:12px;margin-bottom:12px;display:flex;align-items:flex-start;gap:11px;animation:up .22s ease;}
+.fb.ok{background:var(--gl);border:2px solid var(--green);}
+.fb.bad{background:var(--rl);border:2px solid var(--red);}
+.fb-ico{font-size:1.3rem;flex-shrink:0;}
+.fb-title{font-weight:900;font-size:.9rem;margin-bottom:3px;color:var(--navy);}
+.fb-body{font-size:.82rem;color:#444;line-height:1.5;}
+/* ACTIONS */
+.actions{display:flex;gap:9px;margin-top:4px;}
+/* RESULTS */
+.rcard{background:var(--white);border-radius:20px;padding:32px 24px;text-align:center;box-shadow:0 3px 0 rgba(0,0,0,.09);}
+.remo{font-size:4.5rem;display:block;margin-bottom:10px;animation:bounce 1s ease;}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
+.rtitle{font-size:1.75rem;font-weight:900;color:var(--navy);margin-bottom:5px;}
+.rsub{font-size:.9rem;color:var(--muted);margin-bottom:22px;}
+.stats{display:flex;justify-content:center;gap:14px;margin-bottom:20px;}
+.sbox{background:var(--bg);border-radius:12px;padding:13px 16px;text-align:center;border:2px solid var(--border);flex:1;max-width:100px;}
+.snum{font-size:1.6rem;font-weight:900;color:var(--navy);}
+.slbl{font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;margin-top:2px;}
+.xpb{background:linear-gradient(135deg,var(--yellow),var(--orange));border-radius:12px;padding:14px;color:#fff;font-weight:900;font-size:1.1rem;margin-bottom:20px;}
+/* CONFETTI */
+.cel{position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden;}
+.cf{position:absolute;animation:fall linear forwards;}
+@keyframes fall{0%{opacity:1;transform:translateY(-10px) rotate(0deg);}100%{opacity:0;transform:translateY(100vh) rotate(720deg);}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo">Chem<span>Quest</span> ⚗️</div>
+  <div class="badges">
+    <div class="badge bst">🔥 <span id="st">0</span></div>
+    <div class="badge bxp">⭐ <span id="xpn">0</span> XP</div>
+  </div>
+</div>
+
+<div class="wrap">
+<!-- HOME -->
+<div class="screen active" id="s-home">
+  <div class="hero">
+    <h1>IB Chem <span>HL</span> 🧪</h1>
+    <p>Exam-style practice questions across all major topics</p>
+    <button class="btn btn-g" id="start-btn" onclick="startQuiz()" disabled>Start Lesson →</button>
+  </div>
+  <div class="sec">Choose a Topic</div>
+  <div class="topic-grid">
+    <div class="tc" data-t="stoich" onclick="pickTopic(this)"><div class="tc-icon">⚖️</div><div class="tc-name">Stoichiometric Relationships</div><div class="tc-sub">Moles · equations · gas laws</div></div>
+    <div class="tc" data-t="atomic" onclick="pickTopic(this)"><div class="tc-icon">⚛️</div><div class="tc-name">Atomic Structure</div><div class="tc-sub">Orbitals · ionisation · isotopes</div></div>
+    <div class="tc" data-t="organic" onclick="pickTopic(this)"><div class="tc-icon">🔗</div><div class="tc-name">Organic Chemistry</div><div class="tc-sub">Mechanisms · functional groups</div></div>
+    <div class="tc" data-t="period" onclick="pickTopic(this)"><div class="tc-icon">📊</div><div class="tc-name">Periodicity</div><div class="tc-sub">Trends · Period 3 · d-block</div></div>
+    <div class="tc" data-t="energy" onclick="pickTopic(this)"><div class="tc-icon">🔥</div><div class="tc-name">Energetics</div><div class="tc-sub">Enthalpy · Hess · Born-Haber</div></div>
+    <div class="tc" data-t="equil" onclick="pickTopic(this)"><div class="tc-icon">⚡</div><div class="tc-name">Equilibrium &amp; Kinetics</div><div class="tc-sub">Kc · Le Chatelier · rates</div></div>
+  </div>
+  <div class="sec">Difficulty</div>
+  <div class="diff-row">
+    <button class="db on" data-d="Easy" onclick="pickDiff(this)">🟢 Easy</button>
+    <button class="db" data-d="Medium" onclick="pickDiff(this)">🟡 Medium</button>
+    <button class="db" data-d="Hard" onclick="pickDiff(this)">🔴 Hard HL</button>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="screen" id="s-quiz">
+  <div class="prog">
+    <div class="prog-bar"><div class="prog-fill" id="pbar" style="width:0%"></div></div>
+    <div class="prog-txt" id="plbl">0 / 8</div>
+    <div class="hearts" id="hearts">
+      <span class="heart">❤️</span><span class="heart">❤️</span><span class="heart">❤️</span>
+    </div>
+  </div>
+  <div class="qcard" id="qcard">
+    <div class="qtag" id="qtag">Topic</div>
+    <div class="qkind" id="qkind">Multiple Choice</div>
+    <div class="qtext" id="qtext"></div>
+    <div id="qopts"></div>
+  </div>
+  <div id="fba"></div>
+  <div class="actions">
+    <button class="btn btn-o" id="skip-btn" style="flex:1" onclick="skip()">Skip</button>
+    <button class="btn btn-g" id="next-btn" style="flex:2;display:none" onclick="advance()">Continue →</button>
+    <button class="btn btn-g" id="chk-btn"  style="flex:2;display:none" onclick="checkShort()">Check ✓</button>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div class="screen" id="s-results">
+  <div class="rcard">
+    <span class="remo" id="remo">🏆</span>
+    <div class="rtitle" id="rtitle">Excellent!</div>
+    <div class="rsub" id="rsub"></div>
+    <div class="stats">
+      <div class="sbox"><div class="snum" id="sc">0</div><div class="slbl">Correct</div></div>
+      <div class="sbox"><div class="snum" id="sw">0</div><div class="slbl">Wrong</div></div>
+      <div class="sbox"><div class="snum" id="sa">0%</div><div class="slbl">Accuracy</div></div>
+    </div>
+    <div class="xpb" id="xpb">⭐ +0 XP</div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-o" style="flex:1" onclick="show('home')">🏠 Home</button>
+      <button class="btn btn-g" style="flex:1" onclick="startQuiz()">Play Again 🔁</button>
+    </div>
+  </div>
+</div>
+</div>
+<div class="cel" id="cel"></div>
+
+<script>
+// ─── QUESTION BANK ───────────────────────────────────────────────────────────
+// type: mcq | tf | short
+// diff: 1=Easy, 2=Medium, 3=Hard
+const BANK = {
+stoich:[
+  {type:"mcq",diff:1,q:"What is the molar mass of glucose (C₆H₁₂O₆)?",opts:["A. 168 g mol⁻¹","B. 180 g mol⁻¹","C. 174 g mol⁻¹","D. 186 g mol⁻¹"],ans:"B",exp:"C: 6×12=72, H: 12×1=12, O: 6×16=96. Total = 180 g mol⁻¹."},
+  {type:"mcq",diff:1,q:"How many moles of atoms are in 44 g of CO₂?",opts:["A. 1 mol","B. 2 mol","C. 3 mol","D. 4 mol"],ans:"C",exp:"44 g CO₂ = 1 mol CO₂. Each molecule has 3 atoms (1 C + 2 O), so 1 × 3 = 3 mol atoms."},
+  {type:"mcq",diff:1,q:"What is Avogadro's constant?",opts:["A. 6.022 × 10²¹","B. 6.022 × 10²³","C. 6.022 × 10²⁵","D. 3.011 × 10²³"],ans:"B",exp:"Avogadro's constant is 6.022 × 10²³ mol⁻¹ — the number of particles in one mole."},
+  {type:"mcq",diff:2,q:"In the reaction 2H₂ + O₂ → 2H₂O, if 4 g of H₂ reacts with excess O₂, what mass of water is produced?",opts:["A. 18 g","B. 36 g","C. 32 g","D. 9 g"],ans:"B",exp:"4 g H₂ = 2 mol H₂. Ratio is 2:2, so 2 mol H₂O formed. Mass = 2 × 18 = 36 g."},
+  {type:"mcq",diff:2,q:"A solution contains 0.5 mol of NaCl in 250 cm³. What is its concentration in mol dm⁻³?",opts:["A. 0.125 mol dm⁻³","B. 0.5 mol dm⁻³","C. 1.0 mol dm⁻³","D. 2.0 mol dm⁻³"],ans:"D",exp:"c = n/V = 0.5 mol / 0.250 dm³ = 2.0 mol dm⁻³."},
+  {type:"mcq",diff:2,q:"Using PV = nRT, what volume (in dm³) does 0.5 mol of an ideal gas occupy at 300 K and 100 kPa? (R = 8.31 J K⁻¹ mol⁻¹)",opts:["A. 8.31 dm³","B. 10.0 dm³","C. 12.5 dm³","D. 6.24 dm³"],ans:"C",exp:"V = nRT/P = (0.5 × 8.31 × 300) / 100 = 1246.5 / 100 = 12.47 ≈ 12.5 dm³."},
+  {type:"mcq",diff:3,q:"In a back-titration, excess NaOH was added to an unknown acid. The unreacted NaOH required 18.5 cm³ of 0.100 mol dm⁻³ HCl for neutralisation. The original NaOH added was 25.0 cm³ of 0.200 mol dm⁻³. How many moles of acid reacted with NaOH?",opts:["A. 3.15 × 10⁻³ mol","B. 5.00 × 10⁻³ mol","C. 1.85 × 10⁻³ mol","D. 6.65 × 10⁻³ mol"],ans:"A",exp:"Moles NaOH added = 0.025 × 0.200 = 5.00×10⁻³. Moles HCl = 0.0185 × 0.100 = 1.85×10⁻³. Moles NaOH used by acid = 5.00×10⁻³ − 1.85×10⁻³ = 3.15×10⁻³ mol."},
+  {type:"mcq",diff:3,q:"What is the percentage yield if 4.5 g of water is produced from a reaction where the theoretical yield is 6.0 g?",opts:["A. 55%","B. 65%","C. 75%","D. 85%"],ans:"C",exp:"% yield = (actual / theoretical) × 100 = (4.5 / 6.0) × 100 = 75%."},
+  {type:"tf",diff:1,q:"The empirical formula is always the same as the molecular formula.",ans:false,exp:"The empirical formula is the simplest whole-number ratio. E.g. benzene C₆H₆ has empirical formula CH."},
+  {type:"tf",diff:1,q:"At STP (0°C, 101.3 kPa), one mole of an ideal gas occupies 22.4 dm³.",ans:true,exp:"This is the molar volume of an ideal gas at STP, a key value in IB Chemistry."},
+  {type:"tf",diff:2,q:"Increasing the pressure of a gas at constant temperature decreases its volume according to Boyle's Law.",ans:true,exp:"Boyle's Law: P₁V₁ = P₂V₂ at constant T and n. Higher pressure → smaller volume."},
+  {type:"tf",diff:3,q:"Atom economy = (mass of desired product / total mass of all products) × 100. A reaction with atom economy of 100% produces no byproducts.",ans:true,exp:"100% atom economy means all atoms in reactants end up in the desired product — perfectly efficient."},
+  {type:"short",diff:1,q:"What term describes the minimum amount of a substance containing 6.022 × 10²³ particles?",ans:"mole",kws:["mole","mol"],exp:"A mole is the SI unit for amount of substance, always containing Avogadro's number of particles."},
+  {type:"short",diff:2,q:"State the formula used to calculate the number of moles from mass and molar mass.",ans:"n = m / M",kws:["m/M","mass/molar mass","n=m/M"],exp:"n = m/M where n = moles, m = mass in grams, M = molar mass in g mol⁻¹."},
+  {type:"short",diff:3,q:"A sample of water contains 4.18 mg of chloride ions in 50.00 g of water. Calculate the concentration of chloride ions in ppm.",ans:"83.6 ppm",kws:["83","84","ppm"],exp:"ppm = (mass solute / mass solution) × 10⁶ = (0.00418 / 50.00) × 10⁶ = 83.6 ppm."},
+],
+atomic:[
+  {type:"mcq",diff:1,q:"Which subatomic particle determines the chemical properties of an element?",opts:["A. Neutron","B. Proton","C. Electron","D. Nucleus"],ans:"C",exp:"Electrons determine chemical properties as they participate in bonding. The number of protons defines the element."},
+  {type:"mcq",diff:1,q:"What is the electron configuration of a phosphorus atom (Z = 15)?",opts:["A. 1s²2s²2p⁶3s²3p¹","B. 1s²2s²2p⁶3s²3p³","C. 1s²2s²2p⁶3s²3p⁵","D. 1s²2s²2p⁶3s¹3p⁴"],ans:"B",exp:"P has 15 electrons: 1s²2s²2p⁶3s²3p³. The 3p subshell has 3 electrons each in separate orbitals (Hund's rule)."},
+  {type:"mcq",diff:2,q:"Which of the following pairs are isotopes of the same element?",opts:["A. ¹²C and ¹⁴N","B. ¹H and ²H","C. ¹⁶O and ³²S","D. ²³Na and ²⁴Mg"],ans:"B",exp:"Isotopes have the same atomic number (same element) but different mass numbers. ¹H and ²H (deuterium) are both hydrogen (Z=1)."},
+  {type:"mcq",diff:2,q:"Why is there a large jump in successive ionisation energies of sodium between the 1st and 2nd ionisation?",opts:["A. The 2nd electron is closer to the nucleus","B. The 2nd electron is in a full inner shell with greater shielding removed","C. After removing 1 electron, the remaining electrons experience greater nuclear attraction","D. The 2nd electron is in the 2p subshell"],ans:"C",exp:"After Na loses its 1 valence electron, the 2nd electron must be removed from the full n=2 shell — much closer to the nucleus and less shielded, requiring far more energy."},
+  {type:"mcq",diff:3,q:"Why does copper (Z=29) have the electron configuration [Ar]3d¹⁰4s¹ rather than [Ar]3d⁹4s²?",opts:["A. 4s is always filled before 3d","B. A fully filled 3d subshell provides extra stability","C. 3d electrons repel 4s electrons","D. Copper is a transition metal so the rules are different"],ans:"B",exp:"A completely filled d subshell ([Ar]3d¹⁰4s¹) is especially stable due to symmetrical electron distribution, so one electron moves from 4s to complete the 3d subshell."},
+  {type:"tf",diff:1,q:"The mass number of an atom equals the number of protons plus neutrons.",ans:true,exp:"Mass number A = protons (Z) + neutrons. It is the total number of nucleons."},
+  {type:"tf",diff:2,q:"First ionisation energy generally increases across a period because nuclear charge increases while shielding remains approximately the same.",ans:true,exp:"More protons pull electrons closer with similar shielding from inner electrons, making removal harder."},
+  {type:"tf",diff:2,q:"Isotopes of the same element always have identical chemical properties.",ans:true,exp:"Isotopes differ only in neutron number (mass), not electron configuration, so chemical properties are the same. Physical properties differ slightly."},
+  {type:"short",diff:1,q:"What name is given to atoms of the same element with different numbers of neutrons?",ans:"isotopes",kws:["isotope","isotopes"],exp:"Isotopes have the same atomic number (protons) but different mass numbers due to different neutron counts."},
+  {type:"short",diff:3,q:"State the name given to the energy required to remove one mole of electrons from one mole of gaseous atoms in their ground state.",ans:"first ionisation energy",kws:["ionisation","ionization","first ionisation"],exp:"First ionisation energy: X(g) → X⁺(g) + e⁻. Measured in kJ mol⁻¹."},
+],
+organic:[
+  {type:"mcq",diff:1,q:"Which functional group is present in a carboxylic acid?",opts:["A. –OH","B. –CHO","C. –COOH","D. –COO–"],ans:"C",exp:"The carboxyl group –COOH is the defining functional group of carboxylic acids. It consists of a carbonyl and hydroxyl group on the same carbon."},
+  {type:"mcq",diff:1,q:"What is the IUPAC name for CH₃CH₂CH₂OH?",opts:["A. Propan-1-ol","B. Propan-2-ol","C. Butan-1-ol","D. Ethanol"],ans:"A",exp:"Three carbons (prop-), single bond (-an-), hydroxyl group at C1 (-1-ol). Correct name: propan-1-ol."},
+  {type:"mcq",diff:2,q:"When HBr adds to propene (CH₃CH=CH₂), which is the major product according to Markovnikov's rule?",opts:["A. 1-bromopropane","B. 2-bromopropane","C. 1,2-dibromopropane","D. Bromocyclopropane"],ans:"B",exp:"Markovnikov's rule: H adds to the carbon with more H atoms (CH₂ end), so Br goes to the middle carbon → 2-bromopropane (more stable secondary carbocation intermediate)."},
+  {type:"mcq",diff:2,q:"Which reagent is used to distinguish an aldehyde from a ketone?",opts:["A. Bromine water","B. Tollens' reagent","C. Acidified dichromate","D. Sodium hydroxide"],ans:"B",exp:"Tollens' reagent (ammoniacal silver nitrate) produces a silver mirror with aldehydes (oxidised to carboxylic acid) but not ketones, which cannot be further oxidised easily."},
+  {type:"mcq",diff:2,q:"What type of mechanism occurs in the reaction between a primary halogenoalkane and NaOH(aq)?",opts:["A. SN1","B. SN2","C. Electrophilic addition","D. Free radical substitution"],ans:"B",exp:"Primary halogenoalkanes undergo SN2: the nucleophile (OH⁻) attacks from the back while the leaving group (X⁻) departs simultaneously. One-step mechanism, second-order kinetics."},
+  {type:"mcq",diff:3,q:"What conditions are required for the nitration of benzene?",opts:["A. Conc. HNO₃ only, room temperature","B. Conc. HNO₃ + conc. H₂SO₄, 55°C","C. Dilute HNO₃ + conc. H₂SO₄, 100°C","D. Conc. HNO₃ + conc. H₂SO₄, 100°C"],ans:"B",exp:"Nitration requires a mixture of conc. HNO₃ and conc. H₂SO₄ (which generates the nitronium electrophile NO₂⁺) at about 55°C. Higher temperatures cause poly-nitration."},
+  {type:"mcq",diff:3,q:"Which of the following best explains why benzene undergoes electrophilic substitution rather than addition?",opts:["A. Benzene has no π electrons available","B. Substitution preserves the stable delocalised π system","C. The ring is too rigid for addition","D. Addition would require a catalyst"],ans:"B",exp:"Addition would destroy the aromatic delocalisation (losing ~150 kJ mol⁻¹ of stability). Substitution restores the aromatic system after electrophilic attack."},
+  {type:"tf",diff:1,q:"Alkenes undergo addition reactions because they contain a C=C double bond.",ans:true,exp:"The π bond in alkenes is electron-rich and reactive. Electrophiles add across the double bond, breaking the π bond."},
+  {type:"tf",diff:2,q:"Geometric (cis-trans) isomerism is possible in all alkenes.",ans:false,exp:"Geometric isomerism requires each carbon of the C=C to have two different groups. E.g. propene (CH₃CH=CH₂) has one CH₂ end with two identical H atoms, so no cis-trans isomers."},
+  {type:"tf",diff:3,q:"In the SN1 mechanism, the rate of reaction depends on the concentration of both the halogenoalkane and the nucleophile.",ans:false,exp:"SN1 is unimolecular — the rate-determining step is the ionisation of the halogenoalkane to form a carbocation. Rate = k[halogenoalkane] only."},
+  {type:"short",diff:1,q:"What is the general formula for an alkane?",ans:"CnH2n+2",kws:["CnH2n+2","cnh2n+2","n+2"],exp:"Alkanes are saturated hydrocarbons with formula CₙH₂ₙ₊₂. Each carbon forms 4 single bonds."},
+  {type:"short",diff:2,q:"Name the type of isomerism exhibited by lactic acid (2-hydroxypropanoic acid), which exists as non-superimposable mirror images.",ans:"optical isomerism",kws:["optical","chiral","enantiomer"],exp:"Optical isomers (enantiomers) have a chiral centre (4 different groups on one carbon) and rotate plane-polarised light in opposite directions."},
+  {type:"short",diff:3,q:"Name the electrophile formed when conc. H₂SO₄ is added to conc. HNO₃ in the nitration of benzene.",ans:"nitronium ion",kws:["nitronium","NO2+","no2+"],exp:"H₂SO₄ protonates HNO₃ to form the nitronium ion (NO₂⁺): HNO₃ + 2H₂SO₄ → NO₂⁺ + 2HSO₄⁻ + H₃O⁺. This is the electrophile that attacks the benzene ring."},
+],
+period:[
+  {type:"mcq",diff:1,q:"Which of the following shows the correct trend in atomic radius across Period 3 (Na to Cl)?",opts:["A. Increases","B. Decreases","C. First increases then decreases","D. Stays the same"],ans:"B",exp:"Atomic radius decreases across a period. Increasing nuclear charge with the same number of shells pulls electrons closer to the nucleus."},
+  {type:"mcq",diff:2,q:"Why does aluminium (Al) have a lower first ionisation energy than magnesium (Mg)?",opts:["A. Al has more protons than Mg","B. Al's outer electron is in a higher energy 3p orbital, which is easier to remove","C. Al has fewer electrons than Mg","D. Al has greater shielding than Mg"],ans:"B",exp:"Mg's outer electron is in 3s; Al's is in 3p which is slightly higher in energy and easier to remove. This causes a dip in IE₁ between Mg and Al across Period 3."},
+  {type:"mcq",diff:2,q:"What is produced when sodium oxide (Na₂O) reacts with water?",opts:["A. Sodium hydroxide solution","B. Sodium peroxide","C. Sodium hydride","D. Sodium carbonate"],ans:"A",exp:"Na₂O + H₂O → 2NaOH. Na₂O is a basic oxide; it dissolves in water to give an alkaline solution."},
+  {type:"mcq",diff:3,q:"Which statement correctly explains why SiCl₄ hydrolyses rapidly in water but NaCl dissolves without hydrolysis?",opts:["A. NaCl is more soluble than SiCl₄","B. Si has vacant 3d orbitals available for nucleophilic attack by water; Na⁺ does not","C. SiCl₄ is more ionic than NaCl","D. NaCl has a lower lattice enthalpy"],ans:"B",exp:"SiCl₄ is covalent with a δ+ Si centre and available 3d orbitals, so H₂O (nucleophile) attacks Si, initiating hydrolysis. NaCl is ionic; Na⁺ and Cl⁻ simply dissociate in water."},
+  {type:"tf",diff:1,q:"Electronegativity increases across a period from left to right.",ans:true,exp:"Greater nuclear charge with the same shielding pulls bonding electrons more strongly, increasing electronegativity across a period."},
+  {type:"tf",diff:2,q:"Al₂O₃ is amphoteric — it reacts with both acids and bases.",ans:true,exp:"Al₂O₃ + 6HCl → 2AlCl₃ + 3H₂O (reacts with acid); Al₂O₃ + 2NaOH → 2NaAlO₂ + H₂O (reacts with base). This reflects Al's borderline metallic character."},
+  {type:"tf",diff:3,q:"Transition metals show variable oxidation states because they have closely spaced d and s orbitals of similar energy.",ans:true,exp:"The 3d and 4s orbitals are close in energy, so various numbers of d and s electrons can be involved in bonding, giving multiple stable oxidation states."},
+  {type:"short",diff:1,q:"State the trend in first ionisation energy down Group 1 (alkali metals).",ans:"decreases",kws:["decrease","decreases","lower","less"],exp:"Down the group, the outer electron is in a higher energy level, further from the nucleus and more shielded — easier to remove, so IE₁ decreases."},
+  {type:"short",diff:3,q:"State two characteristic properties of transition metals that are not shown by Group 1 or 2 metals.",ans:"variable oxidation states and coloured ions",kws:["variable oxidation","coloured","color","complex","catalyst"],exp:"Transition metals show: variable oxidation states, formation of coloured ions/compounds, catalytic activity, and ability to form complex ions with ligands."},
+],
+energy:[
+  {type:"mcq",diff:1,q:"Which of the following reactions is exothermic?",opts:["A. Decomposition of CaCO₃","B. Photosynthesis","C. Combustion of methane","D. Dissolving ammonium nitrate in water"],ans:"C",exp:"Combustion reactions release energy (ΔH < 0) as chemical bonds in the fuel are replaced by stronger bonds in CO₂ and H₂O."},
+  {type:"mcq",diff:2,q:"Using Hess's Law and the following data, calculate ΔH for C(s) + ½O₂(g) → CO(g). ΔH(C→CO₂) = −394 kJ mol⁻¹; ΔH(CO→CO₂) = −283 kJ mol⁻¹.",opts:["A. −677 kJ mol⁻¹","B. −111 kJ mol⁻¹","C. +111 kJ mol⁻¹","D. +677 kJ mol⁻¹"],ans:"B",exp:"ΔH(C→CO) = ΔH(C→CO₂) − ΔH(CO→CO₂) = −394 − (−283) = −111 kJ mol⁻¹."},
+  {type:"mcq",diff:2,q:"Using mean bond enthalpies, which step is exothermic in the reaction H₂(g) + Cl₂(g) → 2HCl(g)? [H–H: 436, Cl–Cl: 243, H–Cl: 432 kJ mol⁻¹]",opts:["A. Breaking H–H and Cl–Cl bonds","B. Forming two H–Cl bonds","C. The overall reaction is endothermic","D. Breaking H–Cl bonds"],ans:"B",exp:"ΔH = bonds broken − bonds formed = (436 + 243) − (2×432) = 679 − 864 = −185 kJ mol⁻¹. Energy is released overall because forming H–Cl bonds releases more energy than breaking H–H and Cl–Cl."},
+  {type:"mcq",diff:3,q:"Under what conditions is a reaction spontaneous according to the Gibbs free energy equation ΔG = ΔH − TΔS?",opts:["A. Only when ΔH < 0","B. When ΔG < 0","C. Only when ΔS > 0","D. When ΔG > 0"],ans:"B",exp:"A reaction is spontaneous when ΔG < 0. This can be achieved if ΔH < 0 (exothermic), ΔS > 0 (increased disorder), or a combination at suitable temperature."},
+  {type:"mcq",diff:3,q:"In a Born-Haber cycle for NaCl, which step has the most negative enthalpy value?",opts:["A. Ionisation of Na(g)","B. Atomisation of Na(s)","C. Lattice enthalpy (formation of NaCl)","D. Electron affinity of Cl(g)"],ans:"C",exp:"Lattice enthalpy of formation (gas ions → solid) is highly exothermic, typically around −788 kJ mol⁻¹ for NaCl — the largest energy release in the cycle."},
+  {type:"tf",diff:1,q:"An endothermic reaction has a positive enthalpy change (ΔH > 0).",ans:true,exp:"Endothermic reactions absorb heat from surroundings, so the products have more energy than reactants: ΔH = H_products − H_reactants > 0."},
+  {type:"tf",diff:2,q:"q = mcΔT can be used to calculate the enthalpy change in a calorimetry experiment, where c for water = 4.18 J g⁻¹ K⁻¹.",ans:true,exp:"This formula calculates heat energy transferred to/from water. Then ΔH = −q/n to get molar enthalpy change (negative sign because heat released by reaction is absorbed by water)."},
+  {type:"short",diff:2,q:"State Hess's Law.",ans:"The enthalpy change for a reaction is independent of the route taken.",kws:["independent","route","same","path"],exp:"Hess's Law is a consequence of the conservation of energy — enthalpy is a state function, so only initial and final states matter."},
+  {type:"short",diff:3,q:"A reaction has ΔH = −200 kJ mol⁻¹ and ΔS = −0.5 kJ mol⁻¹ K⁻¹. At what temperature (in K) does the reaction become non-spontaneous?",ans:"400 K",kws:["400","400k"],exp:"ΔG = 0 at crossover: T = ΔH/ΔS = −200/−0.5 = 400 K. Above 400 K, the −TΔS term dominates and ΔG > 0 (non-spontaneous)."},
+],
+equil:[
+  {type:"mcq",diff:1,q:"For the equilibrium N₂(g) + 3H₂(g) ⇌ 2NH₃(g), what is the correct expression for Kc?",opts:["A. [NH₃]² / [N₂][H₂]³","B. [N₂][H₂]³ / [NH₃]²","C. [NH₃] / [N₂][H₂]","D. 2[NH₃] / [N₂]+3[H₂]"],ans:"A",exp:"Kc = [products]^stoich / [reactants]^stoich = [NH₃]² / ([N₂][H₂]³). Coefficients become powers."},
+  {type:"mcq",diff:2,q:"For N₂ + 3H₂ ⇌ 2NH₃ (ΔH = −92 kJ mol⁻¹), which change increases the equilibrium yield of NH₃?",opts:["A. Increasing temperature","B. Decreasing pressure","C. Increasing pressure","D. Adding a catalyst"],ans:"C",exp:"By Le Chatelier's: higher pressure favours the side with fewer moles of gas (left has 4 mol, right has 2 mol), shifting equilibrium right → more NH₃. Catalyst doesn't change yield."},
+  {type:"mcq",diff:2,q:"The rate of a reaction doubles when temperature increases from 25°C to 35°C. This is best explained by:",opts:["A. More particles with energy above the activation energy","B. Lower activation energy at higher temperature","C. Increased particle size","D. Decreased collision frequency"],ans:"A",exp:"Higher temperature shifts the Maxwell-Boltzmann distribution so a greater proportion of particles have kinetic energy ≥ Ea, dramatically increasing successful collision frequency."},
+  {type:"mcq",diff:3,q:"At a certain temperature, Kc = 0.04 for A(g) ⇌ B(g). If [A] = 0.5 mol dm⁻³ and [B] = 0.1 mol dm⁻³, what is Q and which direction will the reaction proceed?",opts:["A. Q = 0.2, reaction shifts right","B. Q = 5, reaction shifts left","C. Q = 0.2, reaction shifts left","D. Q = 5, reaction shifts right"],ans:"C",exp:"Q = [B]/[A] = 0.1/0.5 = 0.2. Since Q (0.2) > Kc (0.04), there are too many products. Reaction shifts left (toward A) to reach equilibrium."},
+  {type:"tf",diff:1,q:"Adding a catalyst to an equilibrium system increases the equilibrium constant Kc.",ans:false,exp:"A catalyst speeds up both forward and reverse reactions equally, reaching equilibrium faster but NOT changing Kc or the position of equilibrium."},
+  {type:"tf",diff:2,q:"Decreasing the volume of a container shifts the equilibrium toward the side with fewer moles of gas.",ans:true,exp:"Decreasing volume increases pressure. By Le Chatelier's principle, the system shifts to reduce pressure by favouring the side with fewer gas molecules."},
+  {type:"tf",diff:3,q:"For an exothermic reaction, Kc decreases as temperature increases.",ans:true,exp:"Increasing temperature favours the endothermic (reverse) direction by Le Chatelier's principle, so equilibrium shifts left, meaning fewer products → smaller Kc."},
+  {type:"short",diff:1,q:"State Le Chatelier's principle.",ans:"A system at equilibrium will shift to oppose any imposed change.",kws:["oppose","change","equilibrium","shift"],exp:"Le Chatelier's principle predicts the direction a system shifts when concentration, pressure, or temperature is changed."},
+  {type:"short",diff:2,q:"What is the rate expression for a reaction that is first order in A and second order in B?",ans:"rate = k[A][B]²",kws:["k[A][B]","[A][B]2","[A][B]²"],exp:"Rate = k[A]¹[B]². Overall order = 1+2 = 3. k is the rate constant. These orders must be determined experimentally."},
+  {type:"short",diff:3,q:"Define the term 'activation energy'.",ans:"The minimum energy required for a reaction to occur.",kws:["minimum energy","activation","collide","collisions","Ea"],exp:"Activation energy (Ea) is the minimum kinetic energy that colliding particles must have for a reaction to occur. A catalyst provides an alternative pathway with lower Ea."},
+]
+};
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let topic='', diff='Easy', xp=0, streak=0;
+let qIndex=0, totalQ=8, correctCount=0, wrongCount=0, hearts=3;
+let currentQ=null, answered=false;
+let queue=[];  // exactly totalQ unique questions for this session
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function pickTopic(el){
+  document.querySelectorAll('.tc').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  topic=el.dataset.t;
+  document.getElementById('start-btn').disabled=false;
+}
+
+function pickDiff(el){
+  document.querySelectorAll('.db').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  diff=el.dataset.d;
+}
+
+function updateProgress(){
+  document.getElementById('pbar').style.width=(qIndex/totalQ*100)+'%';
+  document.getElementById('plbl').textContent=qIndex+' / '+totalQ;
+}
+
+function updateHearts(){
+  document.querySelectorAll('.heart').forEach((h,i)=>h.classList.toggle('lost',i>=hearts));
+}
+
+// ─── QUIZ START ───────────────────────────────────────────────────────────────
+function startQuiz(){
+  if(!topic)return;
+  qIndex=0; correctCount=0; wrongCount=0; hearts=3; answered=false;
+  const diffNum={Easy:1,Medium:2,Hard:3}[diff]||1;
+  let candidates=(BANK[topic]||[]).filter(q=>q.diff===diffNum);
+  // fallback: use all questions for the topic if not enough at this difficulty
+  if(candidates.length<totalQ) candidates=(BANK[topic]||[]).slice();
+  shuffleArr(candidates);
+  // take exactly totalQ unique questions (or all if fewer available)
+  queue=candidates.slice(0, totalQ);
+  totalQ=queue.length; // adjust if bank smaller than 8
+  updateHearts(); updateProgress();
+  show('quiz');
+  nextQ();
+}
+
+function shuffleArr(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}}
+
+// ─── NEXT QUESTION ────────────────────────────────────────────────────────────
+function nextQ(){
+  answered=false;
+  document.getElementById('skip-btn').style.display='inline-block';
+  document.getElementById('next-btn').style.display='none';
+  document.getElementById('chk-btn').style.display='none';
+  document.getElementById('fba').innerHTML='';
+  currentQ=queue[qIndex];
+  renderQ(currentQ);
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+const topicLabels={stoich:'Stoichiometry',atomic:'Atomic Structure',organic:'Organic Chemistry',period:'Periodicity',energy:'Energetics',equil:'Equilibrium & Kinetics'};
+const diffLabels={1:'🟢 Easy',2:'🟡 Medium',3:'🔴 Hard HL'};
+
+function renderQ(q){
+  document.getElementById('qtag').textContent=topicLabels[topic]||topic;
+  const kinds={mcq:'Multiple Choice',tf:'True or False',short:'Short Answer'};
+  document.getElementById('qkind').textContent=(kinds[q.type]||'Question')+' · '+diffLabels[q.diff];
+  document.getElementById('qtext').textContent=q.q;
+
+  // animate card
+  const card=document.getElementById('qcard');
+  card.style.animation='none';
+  void card.offsetWidth;
+  card.style.animation='up .28s ease';
+
+  const wrap=document.getElementById('qopts');
+  wrap.innerHTML='';
+
+  if(q.type==='mcq'){
+    const grid=document.createElement('div');
+    grid.className='opts';
+    ['A','B','C','D'].forEach((L,i)=>{
+      if(!q.opts[i])return;
+      const text=q.opts[i].replace(/^[A-D]\.\s*/,'');
+      const btn=document.createElement('button');
+      btn.className='opt';
+      btn.dataset.l=L;
+      btn.innerHTML=`<span class="oletter">${L}</span><span>${text}</span>`;
+      btn.addEventListener('click',()=>handleMCQ(btn,L));
+      grid.appendChild(btn);
+    });
+    wrap.appendChild(grid);
+
+  }else if(q.type==='tf'){
+    const grid=document.createElement('div');
+    grid.className='tf';
+    [[true,'✅ True'],[false,'❌ False']].forEach(([val,label])=>{
+      const btn=document.createElement('button');
+      btn.className='tfb';
+      btn.textContent=label;
+      btn.addEventListener('click',()=>handleTF(btn,val));
+      grid.appendChild(btn);
+    });
+    wrap.appendChild(grid);
+
+  }else{ // short
+    const inp=document.createElement('input');
+    inp.type='text';
+    inp.className='sinp';
+    inp.id='sinp';
+    inp.placeholder='Type your answer…';
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter')checkShort();});
+    wrap.appendChild(inp);
+    document.getElementById('chk-btn').style.display='inline-block';
+    setTimeout(()=>inp.focus(),80);
+  }
+}
+
+// ─── ANSWER HANDLERS ──────────────────────────────────────────────────────────
+function handleMCQ(btn,chosen){
+  if(answered)return;
+  answered=true;
+  document.querySelectorAll('.opt').forEach(b=>{
+    b.disabled=true;
+    if(b.dataset.l===currentQ.ans)b.classList.add('ok');
+  });
+  const ok=chosen===currentQ.ans;
+  if(!ok)btn.classList.add('bad');
+  showFeedback(ok,currentQ.exp);
+}
+
+function handleTF(btn,chosen){
+  if(answered)return;
+  answered=true;
+  document.querySelectorAll('.tfb').forEach(b=>b.disabled=true);
+  const ok=(chosen===currentQ.ans);
+  btn.classList.add(ok?'ok':'bad');
+  if(!ok){
+    document.querySelectorAll('.tfb').forEach(b=>{
+      const bval=b.textContent.includes('True');
+      if(bval===currentQ.ans)b.classList.add('ok');
+    });
+  }
+  showFeedback(ok,currentQ.exp);
+}
+
+function checkShort(){
+  if(answered)return;
+  const inp=document.getElementById('sinp');
+  if(!inp)return;
+  const user=inp.value.trim().toLowerCase();
+  if(!user){inp.style.borderColor='var(--red)';return;}
+  answered=true;
+  inp.disabled=true;
+  document.getElementById('chk-btn').style.display='none';
+  const ca=(currentQ.ans||'').toLowerCase();
+  const kws=(currentQ.kws||[]).map(k=>k.toLowerCase());
+  const ok=user===ca||ca.includes(user)||user.includes(ca)||kws.some(k=>user.includes(k));
+  showFeedback(ok,`Correct answer: ${currentQ.ans}. ${currentQ.exp}`);
+}
+
+// ─── FEEDBACK ─────────────────────────────────────────────────────────────────
+function showFeedback(ok,exp){
+  const xpGain={Easy:10,Medium:15,Hard:20}[diff]||10;
+  if(ok){
+    correctCount++; xp+=xpGain; streak++;
+    document.getElementById('xpn').textContent=xp;
+    document.getElementById('st').textContent=streak;
+    if(streak>0&&streak%3===0)confetti();
+    document.getElementById('fba').innerHTML=`<div class="fb ok"><span class="fb-ico">🎉</span><div><div class="fb-title">Correct! +${xpGain} XP</div><div class="fb-body">${exp||''}</div></div></div>`;
+  }else{
+    wrongCount++; streak=0; hearts=Math.max(0,hearts-1);
+    document.getElementById('st').textContent=streak;
+    updateHearts();
+    document.getElementById('fba').innerHTML=`<div class="fb bad"><span class="fb-ico">💡</span><div><div class="fb-title">Not quite!</div><div class="fb-body">${exp||''}</div></div></div>`;
+  }
+  document.getElementById('skip-btn').style.display='none';
+  const nb=document.getElementById('next-btn');
+  nb.style.display='inline-block';
+  nb.textContent=(qIndex+1>=totalQ||hearts===0)?'See Results 📊':'Continue →';
+}
+
+function advance(){
+  qIndex++;
+  updateProgress();
+  if(qIndex>=totalQ||hearts===0){showResults();}
+  else{nextQ();}
+}
+
+function skip(){
+  if(answered)return;
+  wrongCount++; streak=0; hearts=Math.max(0,hearts-1);
+  document.getElementById('st').textContent=streak;
+  updateHearts();
+  qIndex++;
+  updateProgress();
+  if(qIndex>=totalQ||hearts===0){showResults();}
+  else{nextQ();}
+}
+
+// ─── RESULTS ──────────────────────────────────────────────────────────────────
+function showResults(){
+  const total=correctCount+wrongCount||1;
+  const acc=Math.round(correctCount/total*100);
+  const xpGained=correctCount*({Easy:10,Medium:15,Hard:20}[diff]||10);
+  let emoji,title,sub;
+  if(acc>=80){emoji='🏆';title='Outstanding!';sub='You\'re exam-ready!';}
+  else if(acc>=60){emoji='⭐';title='Great Work!';sub='Keep revising — nearly there!';}
+  else if(acc>=40){emoji='💪';title='Good Effort!';sub='Review the explanations and try again.';}
+  else{emoji='📚';title='Keep Practising!';sub='Every attempt makes you better!';}
+  document.getElementById('remo').textContent=emoji;
+  document.getElementById('rtitle').textContent=title;
+  document.getElementById('rsub').textContent=sub;
+  document.getElementById('sc').textContent=correctCount;
+  document.getElementById('sw').textContent=wrongCount;
+  document.getElementById('sa').textContent=acc+'%';
+  document.getElementById('xpb').textContent=`⭐ +${xpGained} XP Earned!`;
+  show('results');
+  if(acc>=80)confetti();
+}
+
+// ─── CONFETTI ─────────────────────────────────────────────────────────────────
+function confetti(){
+  const w=document.getElementById('cel');
+  w.innerHTML='';
+  const cols=['#58cc02','#1cb0f6','#ff9600','#ffc800','#ce82ff','#ff4b4b','#fff'];
+  for(let i=0;i<55;i++){
+    const el=document.createElement('div');
+    el.className='cf';
+    el.style.cssText=`left:${Math.random()*100}%;background:${cols[i%cols.length]};width:${7+Math.random()*7}px;height:${7+Math.random()*7}px;border-radius:${Math.random()>.5?'50%':'3px'};animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()*.4}s;`;
+    w.appendChild(el);
+  }
+  setTimeout(()=>{w.innerHTML='';},3500);
+}
+</script>
+</body>
+</html>
